@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    " P ",
+    " C ",
+    " P "
+  ],
+  "key": {
+    "P": {
+      "item": "coldbottles:papercup"
+    },
+    "C": {
+      "item": "minecraft:clay_ball"
+    }
+  },
+  "result": {
+    "item": "coldbottles:clupcup",
+    "count": 1
+  }
+}

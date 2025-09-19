@@ -1,0 +1,13 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "coldbottles:item/papercup",
+    "layer1": "coldbottles:item/papercup_empty"
+  },
+  "overrides": [
+    {
+      "predicate": {"coldbottles:filled": 1},
+      "model": "coldbottles:item/papercup_filled"
+    }
+  ]
+}

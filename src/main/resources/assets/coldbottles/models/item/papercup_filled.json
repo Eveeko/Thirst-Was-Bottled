@@ -1,0 +1,7 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "coldbottles:item/papercup",
+    "layer1": "coldbottles:item/papercup_filled"
+  }
+}

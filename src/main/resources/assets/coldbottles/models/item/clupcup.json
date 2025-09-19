@@ -1,0 +1,7 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "coldbottles:item/clupcup",
+    "layer1": "coldbottles:item/clupcup_water"
+  }
+}
