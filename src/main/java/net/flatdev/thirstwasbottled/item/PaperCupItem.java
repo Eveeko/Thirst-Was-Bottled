@@ -145,9 +145,11 @@ public class PaperCupItem extends Item{
                     ItemStack cup = stack.copy();
                     cup.setCount(1);
                     if (cup.getTag().getBoolean("Filled") && cup.getTag().getString("Fluid").equals("minecraft:water")) {
+                        int purity = WaterPurity.getPurity(cup);
                         stack.shrink(1);
                         player.playSound(SoundEvents.GENERIC_DRINK, 1.0F, 1.0F);
                         PlayerThirst.drink(cup, player);
+                        WaterPurity.givePurityEffects(player, purity);
 
                         return (stack);
                     }
