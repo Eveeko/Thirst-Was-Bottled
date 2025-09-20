@@ -1,10 +1,10 @@
-package net.flatdev.thirstwasbottled;
+package net.flatdev.thirstwasbottled.foundation.common;
 
 import com.mojang.logging.LogUtils;
 import dev.ghen.thirst.api.ThirstHelper;
-import dev.ghen.thirst.content.purity.WaterPurity;
 import net.flatdev.thirstwasbottled.item.ModCreativeModeTabs;
 import net.flatdev.thirstwasbottled.item.Moditems;
+import net.flatdev.thirstwasbottled.item.PaperCupItem;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
@@ -45,7 +45,7 @@ public class ThirstWasBottled
 
     private void commonSetup(final FMLCommonSetupEvent event)
     {
-        ThirstHelper.VALID_DRINKS.put(Moditems.PAPERCUP.get(), new Number[]{1.5, 1});
+        ThirstHelper.VALID_DRINKS.put(Moditems.PAPERCUP.get(), new Number[]{((PaperCupItem)Moditems.PAPERCUP.get()).getHydration(), ((PaperCupItem)Moditems.PAPERCUP.get()).getQuench()});
     }
 
     // Add the example block item to the building blocks tab

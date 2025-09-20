@@ -3,6 +3,7 @@ package net.flatdev.thirstwasbottled.item;
 import dev.ghen.thirst.content.purity.WaterPurity;
 import dev.ghen.thirst.content.thirst.PlayerThirst;
 import dev.ghen.thirst.foundation.gui.ThirstBarRenderer;
+import net.flatdev.thirstwasbottled.foundation.common.item.DrinkItem;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleEngine;
 import net.minecraft.client.particle.ParticleProvider;
@@ -37,138 +38,10 @@ import net.minecraftforge.registries.ForgeRegistries;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class PaperCupItem extends Item{
-    public PaperCupItem(Properties properties){
+public class PaperCupItem extends DrinkItem {
+    public PaperCupItem(Properties properties) {
         super(properties);
-    }
-    public int dripTracker = 0;
-
-    @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
-        ItemStack stack = player.getItemInHand(hand);
-        BlockHitResult hit = getPlayerPOVHitResult(level, player, ClipContext.Fluid.SOURCE_ONLY);
-
-        if (hit.getType() == HitResult.Type.BLOCK && stack.getTag() == null) {
-            BlockPos pos = hit.getBlockPos();
-            BlockState state = level.getBlockState(pos);
-            FluidStack fluidStack = FluidStack.EMPTY;
-
-            if (state.getBlock() == Blocks.WATER && state.getFluidState().isSource()) {
-                if (!level.isClientSide){
-                    FluidState fluidState = state.getFluidState();
-                    FluidType type = fluidState.getFluidType(); // FluidType, not Fluid
-                    Fluid fluid = ForgeRegistries.FLUIDS.getValue(ForgeRegistries.FLUID_TYPES.get().getKey(type));
-                    fluidStack = new FluidStack(fluid, 100); // 100 mB
-                    // Pick purity based on source
-                    int purity = 0; // default clean
-                    purity = WaterPurity.getBlockPurity(level, pos);
-                    if(purity == -1){ purity = 0; };
-                    // Create a new filled cup
-                    ItemStack filledCup = stack.copy();
-                    filledCup.setCount(1);
-                    WaterPurity.addPurity(filledCup, purity);
-                    filledCup.getOrCreateTag().putBoolean("Filled", true);
-                    filledCup.getOrCreateTag().putString("Fluid",
-                            ForgeRegistries.FLUIDS.getKey(fluidStack.getFluid()).toString());
-                    filledCup.getOrCreateTag().putInt("Amount", 100);
-
-                    // Grab fluid purity like the bottle does
-
-                    //filledCup.getOrCreateTag().putInt("Purity", purity);
-
-                    // Reduce the original stack size
-                    stack.shrink(1);
-
-                    // Try to put the filled cup into player’s inventory
-                    if (!player.getInventory().add(filledCup)) {
-                        // If inventory full, drop it in the world
-                        player.drop(filledCup, false);
-                    }
-                    // Play sound
-                    level.playSound(null, pos, SoundEvents.BOTTLE_FILL, SoundSource.PLAYERS, 1.0F, 1.0F);
-                }
-
-                return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
-            }
-        }else {
-            if (!player.isCreative() && !player.isSpectator()) {
-                int thirst = ThirstBarRenderer.PLAYER_THIRST.getThirst();
-                if (!player.isCreative() && !player.isSpectator()) {
-                    if(thirst < 20){
-                        return ItemUtils.startUsingInstantly(level, player, hand); // makes it hold and play animation
-                    } else {
-                        return InteractionResultHolder.pass(stack);
-                    }
-                } else{
-                    return InteractionResultHolder.pass(stack);
-                }
-            };
-        }
-        return InteractionResultHolder.pass(stack);
-    }
-    @Override
-    public UseAnim getUseAnimation(ItemStack stack) {
-        if(stack.getTag() != null) {
-            if (stack.getTag().getBoolean("Filled")) {
-                return UseAnim.DRINK; // Makes the player use the drinking animation
-            }
-        }
-        return UseAnim.NONE;
-    }
-    @Override
-    public int getUseDuration(ItemStack stack) {
-        return 32; // Default duration (like drinking a potion)
-    }
-    @Override
-    public void onUseTick(Level level, LivingEntity living, ItemStack stack, int count) {
-        if (level.isClientSide) {
-            dripTracker++;
-            if(dripTracker % 9 == 0) {
-                Vec3 vec3 = living.getLookAngle(); // returns a normalized vector, which is what you want in this case
-                double x = living.getX() + vec3.x * 0.15;
-                double y = (living.getY() + 1.45) + vec3.y * 0.25;
-                double z = living.getZ() + vec3.z * 0.15;
-                level.addParticle(ParticleTypes.FALLING_WATER, x, y, z, 0, 100, 0);
-                dripTracker = 0;
-            }
-        }
-    }
-    @Override
-    public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity entity) {
-        if (entity instanceof Player player) {
-            // Play drinking sound
-            if (!player.isCreative() && !player.isSpectator()) {
-                System.out.println("Player thirst " + ThirstBarRenderer.PLAYER_THIRST.getThirst());
-                int thirst = ThirstBarRenderer.PLAYER_THIRST.getThirst();
-                if (thirst < 20) {
-                    System.out.println("Player is able to drink!");
-                    ItemStack cup = stack.copy();
-                    cup.setCount(1);
-                    if (cup.getTag().getBoolean("Filled") && cup.getTag().getString("Fluid").equals("minecraft:water")) {
-                        int purity = WaterPurity.getPurity(cup);
-                        stack.shrink(1);
-                        player.playSound(SoundEvents.GENERIC_DRINK, 1.0F, 1.0F);
-                        PlayerThirst.drink(cup, player);
-                        WaterPurity.givePurityEffects(player, purity);
-
-                        return (stack);
-                    }
-                }
-            }
-        }
-
-        // Return the empty cup
-        return new ItemStack(Moditems.PAPERCUP.get());
-    }
-    @Override
-    public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
-        if (stack.hasTag() && stack.getTag().contains("Purity")) {
-            int purity = stack.getTag().getInt("Purity");
-
-            // Format like Thirst Was Taken’s bottles
-            MutableComponent purityText = Component.literal(WaterPurity.getPurityText(purity))
-                    .setStyle(Style.EMPTY.withColor(WaterPurity.getPurityColor(purity)));
-            tooltip.add(purityText);
-        }
+        this.setHydration(1.5);
+        this.setQuench(1);
     }
 }

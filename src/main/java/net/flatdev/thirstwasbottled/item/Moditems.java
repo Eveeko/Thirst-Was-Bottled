@@ -1,6 +1,6 @@
 package net.flatdev.thirstwasbottled.item;
 
-import net.flatdev.thirstwasbottled.ThirstWasBottled;
+import net.flatdev.thirstwasbottled.foundation.common.ThirstWasBottled;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
