@@ -93,10 +93,10 @@ public class ThirstWasBottled
                             if(tag != null && tag.contains("Purity")){
                                 int purity = tag.getInt("Purity");
                                 return switch (purity) {
-                                    case 1 -> 0x796631;
+                                    case 1 -> 0x5c809b;
                                     case 2 -> 0x335ed7;
-                                    case 3 -> 0x21B9BF;
-                                    default -> 0xA84825;
+                                    case 3 -> 0x21affc;
+                                    default -> 0x917a3b;
                                 };
                             }
                             return 0xFFFFFF; // no tint for if the cup is empty as purity will always be present in a filled cup.
