@@ -1,21 +1,20 @@
-package net.flatdev.coldbottles.item;
+package net.flatdev.thirstwasbottled.item;
 
-import dev.ghen.thirst.Thirst;
-import dev.ghen.thirst.api.ThirstHelper;
 import dev.ghen.thirst.content.purity.WaterPurity;
 import dev.ghen.thirst.content.thirst.PlayerThirst;
-import dev.ghen.thirst.content.thirst.PlayerThirstManager;
-import dev.ghen.thirst.foundation.common.capability.IThirst;
-import dev.ghen.thirst.foundation.common.event.ThirstEventFactory;
 import dev.ghen.thirst.foundation.gui.ThirstBarRenderer;
-import dev.ghen.thirst.foundation.gui.appleskin.ThirstValues;
-import net.minecraft.ChatFormatting;
+import net.minecraft.client.particle.Particle;
+import net.minecraft.client.particle.ParticleEngine;
+import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.ParticleUtils;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
@@ -23,13 +22,13 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -41,12 +40,11 @@ public class PaperCupItem extends Item{
     public PaperCupItem(Properties properties){
         super(properties);
     }
+    public int dripTracker = 0;
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
-
         ItemStack stack = player.getItemInHand(hand);
-
         BlockHitResult hit = getPlayerPOVHitResult(level, player, ClipContext.Fluid.SOURCE_ONLY);
 
         if (hit.getType() == HitResult.Type.BLOCK && stack.getTag() == null) {
@@ -91,7 +89,18 @@ public class PaperCupItem extends Item{
                 return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
             }
         }else {
-            return ItemUtils.startUsingInstantly(level, player, hand); // makes it hold and play animation
+            if (!player.isCreative() && !player.isSpectator()) {
+                int thirst = ThirstBarRenderer.PLAYER_THIRST.getThirst();
+                if (!player.isCreative() && !player.isSpectator()) {
+                    if(thirst < 20){
+                        return ItemUtils.startUsingInstantly(level, player, hand); // makes it hold and play animation
+                    } else {
+                        return InteractionResultHolder.pass(stack);
+                    }
+                } else{
+                    return InteractionResultHolder.pass(stack);
+                }
+            };
         }
         return InteractionResultHolder.pass(stack);
     }
@@ -109,12 +118,26 @@ public class PaperCupItem extends Item{
         return 32; // Default duration (like drinking a potion)
     }
     @Override
+    public void onUseTick(Level level, LivingEntity living, ItemStack stack, int count) {
+        if (level.isClientSide) {
+            dripTracker++;
+            if(dripTracker % 9 == 0) {
+                Vec3 vec3 = living.getLookAngle(); // returns a normalized vector, which is what you want in this case
+                double x = living.getX() + vec3.x * 0.15;
+                double y = (living.getY() + 1.45) + vec3.y * 0.25;
+                double z = living.getZ() + vec3.z * 0.15;
+                level.addParticle(ParticleTypes.FALLING_WATER, x, y, z, 0, 100, 0);
+                dripTracker = 0;
+            }
+        }
+    }
+    @Override
     public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity entity) {
         if (entity instanceof Player player) {
             // Play drinking sound
             if (!player.isCreative() && !player.isSpectator()) {
                 System.out.println("Player thirst " + ThirstBarRenderer.PLAYER_THIRST.getThirst());
-                Integer thirst = ThirstBarRenderer.PLAYER_THIRST.getThirst();
+                int thirst = ThirstBarRenderer.PLAYER_THIRST.getThirst();
                 if (thirst < 20) {
                     System.out.println("Player is able to drink!");
                     ItemStack cup = stack.copy();

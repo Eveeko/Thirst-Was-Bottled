@@ -1,23 +1,10 @@
-package net.flatdev.coldbottles;
+package net.flatdev.thirstwasbottled;
 
 import com.mojang.logging.LogUtils;
-import dev.ghen.thirst.Thirst;
 import dev.ghen.thirst.api.ThirstHelper;
-import dev.ghen.thirst.content.purity.ContainerWithPurity;
-import dev.ghen.thirst.foundation.common.event.ThirstEventFactory;
-import dev.ghen.thirst.foundation.gui.appleskin.ThirstValues;
-import dev.ghen.thirst.foundation.network.ThirstModPacketHandler;
-import net.flatdev.coldbottles.item.ModCreativeModeTabs;
-import net.flatdev.coldbottles.item.Moditems;
-import net.minecraft.client.Minecraft;
-import net.minecraft.core.registries.Registries;
+import net.flatdev.thirstwasbottled.item.ModCreativeModeTabs;
+import net.flatdev.thirstwasbottled.item.Moditems;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.food.FoodProperties;
-import net.minecraft.world.item.*;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.material.MapColor;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
@@ -30,22 +17,17 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraft.client.renderer.item.ItemProperties;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
 import org.slf4j.Logger;
 
-import static dev.ghen.thirst.content.purity.WaterPurity.addContainer;
-
 // The value here should match an entry in the META-INF/mods.toml file
-@Mod(ColdBottles.MOD_ID)
-public class ColdBottles
+@Mod(ThirstWasBottled.MOD_ID)
+public class ThirstWasBottled
 {
     // Define mod id in a common place for everything to reference
-    public static final String MOD_ID = "coldbottles";
+    public static final String MOD_ID = "thirstwasbottled";
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    public ColdBottles(FMLJavaModLoadingContext context)
+    public ThirstWasBottled(FMLJavaModLoadingContext context)
     {
         IEventBus modEventBus = context.getModEventBus();
 
@@ -84,12 +66,12 @@ public class ColdBottles
         public static void onClientSetup(FMLClientSetupEvent event) {
             ItemProperties.register(
                     Moditems.PAPERCUP.get(),
-                    new ResourceLocation(ColdBottles.MOD_ID, "filled"),
+                    new ResourceLocation(ThirstWasBottled.MOD_ID, "filled"),
                     (stack, level, entity, seed) -> stack.hasTag() && stack.getTag().getBoolean("Filled") ? 1.0F : 0.0F
             );
             // Fluid type (new)
             ItemProperties.register(Moditems.PAPERCUP.get(),
-                    new ResourceLocation(ColdBottles.MOD_ID, "fluid"),
+                    new ResourceLocation(ThirstWasBottled.MOD_ID, "fluid"),
                     (stack, level, entity, seed) -> {
                         if (!stack.hasTag() || !stack.getTag().contains("Fluid")) return 0f;
                         String fluidName = stack.getTag().getString("Fluid");

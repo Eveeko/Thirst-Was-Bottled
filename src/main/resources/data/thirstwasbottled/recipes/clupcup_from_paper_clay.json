@@ -8,14 +8,14 @@
   ],
   "key": {
     "P": {
-      "item": "coldbottles:papercup"
+      "item": "thirstwasbottled:papercup"
     },
     "C": {
       "item": "minecraft:clay_ball"
     }
   },
   "result": {
-    "item": "coldbottles:clupcup",
+    "item": "thirstwasbottled:clupcup",
     "count": 1
   }
 }

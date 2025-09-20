@@ -1,0 +1,13 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "thirstwasbottled:item/papercup",
+    "layer1": "thirstwasbottled:item/papercup_empty"
+  },
+  "overrides": [
+    {
+      "predicate": {"thirstwasbottled:filled": 1},
+      "model": "thirstwasbottled:item/papercup_filled"
+    }
+  ]
+}
