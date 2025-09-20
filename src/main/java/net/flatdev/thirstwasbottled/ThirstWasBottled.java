@@ -2,10 +2,13 @@ package net.flatdev.thirstwasbottled;
 
 import com.mojang.logging.LogUtils;
 import dev.ghen.thirst.api.ThirstHelper;
+import dev.ghen.thirst.content.purity.WaterPurity;
 import net.flatdev.thirstwasbottled.item.ModCreativeModeTabs;
 import net.flatdev.thirstwasbottled.item.Moditems;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.RegisterColorHandlersEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
@@ -79,6 +82,29 @@ public class ThirstWasBottled
                         if (fluidName.equals("minecraft:lava")) return 2f;
                         return 0f;
                     });
+        }
+        @SubscribeEvent
+        public static void onRegisterColorHandlers(RegisterColorHandlersEvent.Item event) {
+            event.register(
+                    (stack, tintIndex) -> {
+                        // tintIndex references the layer number in the item.json file. this whole event gets called once per layer as its getting drawn.
+                        if (tintIndex == 1) {
+                            CompoundTag tag = stack.getTag();
+                            if(tag != null && tag.contains("Purity")){
+                                int purity = tag.getInt("Purity");
+                                return switch (purity) {
+                                    case 1 -> 0x796631;
+                                    case 2 -> 0x335ed7;
+                                    case 3 -> 0x21B9BF;
+                                    default -> 0xA84825;
+                                };
+                            }
+                            return 0xFFFFFF; // no tint for if the cup is empty as purity will always be present in a filled cup.
+                        }
+                        return 0xFFFFFF; // no tint (normal colors) for other layers
+                    },
+                    Moditems.PAPERCUP.get()
+            );
         }
     }
 }
