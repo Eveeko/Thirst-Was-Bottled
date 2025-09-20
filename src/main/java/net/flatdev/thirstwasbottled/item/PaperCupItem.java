@@ -70,6 +70,7 @@ public class PaperCupItem extends Item{
                     filledCup.getOrCreateTag().putString("Fluid",
                             ForgeRegistries.FLUIDS.getKey(fluidStack.getFluid()).toString());
                     filledCup.getOrCreateTag().putInt("Amount", 100);
+                    filledCup.setHoverName(Component.literal(filledCup.getHoverName().getString() + " - " + WaterPurity.getPurityText(purity)));
                     // Grab fluid purity like the bottle does
 
                     //filledCup.getOrCreateTag().putInt("Purity", purity);
