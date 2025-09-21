@@ -72,16 +72,6 @@ public class ThirstWasBottled
                     new ResourceLocation(ThirstWasBottled.MOD_ID, "filled"),
                     (stack, level, entity, seed) -> stack.hasTag() && stack.getTag().getBoolean("Filled") ? 1.0F : 0.0F
             );
-            // Fluid type (new)
-            ItemProperties.register(Moditems.PAPERCUP.get(),
-                    new ResourceLocation(ThirstWasBottled.MOD_ID, "fluid"),
-                    (stack, level, entity, seed) -> {
-                        if (!stack.hasTag() || !stack.getTag().contains("Fluid")) return 0f;
-                        String fluidName = stack.getTag().getString("Fluid");
-                        if (fluidName.equals("minecraft:water")) return 1f;
-                        if (fluidName.equals("minecraft:lava")) return 2f;
-                        return 0f;
-                    });
         }
         @SubscribeEvent
         public static void onRegisterColorHandlers(RegisterColorHandlersEvent.Item event) {

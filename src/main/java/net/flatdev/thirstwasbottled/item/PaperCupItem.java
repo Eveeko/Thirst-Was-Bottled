@@ -44,4 +44,31 @@ public class PaperCupItem extends DrinkItem {
         this.setHydration(1.5);
         this.setQuench(1);
     }
+    public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity entity) {
+        if (entity instanceof Player player) {
+            // Play drinking sound
+            if (!player.isCreative() && !player.isSpectator()) {
+                System.out.println("Player thirst " + ThirstBarRenderer.PLAYER_THIRST.getThirst());
+                int thirst = ThirstBarRenderer.PLAYER_THIRST.getThirst();
+                if (thirst < 20) {
+                    System.out.println("Player is able to drink!");
+                    ItemStack cup = stack.copy();
+                    cup.setCount(1);
+                    if (cup.getTag().getBoolean("Filled") && cup.getTag().getString("Fluid").equals("minecraft:water")) {
+                        int purity = WaterPurity.getPurity(cup);
+                        stack.shrink(1);
+                        player.playSound(SoundEvents.GENERIC_DRINK, 1.0F, 1.0F);
+                        PlayerThirst.drink(cup, player);
+                        WaterPurity.givePurityEffects(player, purity);
+
+                        // Returns the modified stack and adds a empty cup to the players inventory. (an empty stack will clear the inventory slot)
+                        player.addItem(new ItemStack(Moditems.PAPERCUP_CRUSHED.get()));
+                        return (stack);
+                    }
+                }
+            }
+        }
+        // Return the empty cup
+        return new ItemStack(Moditems.PAPERCUP_CRUSHED.get());
+    }
 }

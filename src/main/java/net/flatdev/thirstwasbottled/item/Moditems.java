@@ -11,6 +11,7 @@ public class Moditems {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, ThirstWasBottled.MOD_ID);
 
     public static final RegistryObject<Item> PAPERCUP = ITEMS.register("papercup",() -> new PaperCupItem(new Item.Properties()));
+    public static final RegistryObject<Item> PAPERCUP_CRUSHED = ITEMS.register("papercup_crushed", () -> new Item(new Item.Properties()));
     public static final RegistryObject<Item> CLUPCUP = ITEMS.register("clupcup", () -> new Item(new Item.Properties()));
 
     public static void register(IEventBus eventBus){
