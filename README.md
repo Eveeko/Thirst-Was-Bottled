@@ -4,7 +4,7 @@
 A companion mod that supplies **MORE** water containers for [Thirst Was Taken](https://www.curseforge.com/minecraft/mc-mods/thirst-was-taken)
 
 ![javabadge](https://img.shields.io/badge/Made%20with-grey?style=for-the-badge&logo=openjdk) ![gradlebadge](https://img.shields.io/badge/built%20with%20-grey?style=for-the-badge&logo=gradle&logoColor=02303A) ![CurseForge Downloads](https://img.shields.io/curseforge/dt/11111?style=for-the-badge&logo=curseforge&logoColor=F16436)
-![CurseForge Game Versions](https://img.shields.io/curseforge/game-versions/111?style=for-the-badge&color=15719b) ![GitHub License](https://img.shields.io/github/license/Eveeko/Thirst-Was-Bottled?style=for-the-badge)
+![CurseForge Game Versions](https://img.shields.io/curseforge/game-versions/111?style=for-the-badge&color=15719b) ![GitHub License](https://img.shields.io/badge/type-MIT-lightgrey?style=for-the-badge&label=License)
 
 This work is licensed under a
 [MIT License](https://opensource.org/license/mit)
