@@ -41,8 +41,8 @@ import java.util.List;
 public class PaperCupItem extends DrinkItem {
     public PaperCupItem(Properties properties) {
         super(properties);
-        this.setHydration(1.5);
-        this.setQuench(1);
+        this.setHydration(3); // 1.5 drops
+        this.setQuench(2); // 1 drop
     }
     public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity entity) {
         if (entity instanceof Player player) {

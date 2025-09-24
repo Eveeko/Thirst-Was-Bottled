@@ -12,7 +12,7 @@ public class Moditems {
 
     public static final RegistryObject<Item> PAPERCUP = ITEMS.register("papercup",() -> new PaperCupItem(new Item.Properties()));
     public static final RegistryObject<Item> PAPERCUP_CRUSHED = ITEMS.register("papercup_crushed", () -> new Item(new Item.Properties()));
-    public static final RegistryObject<Item> CLUPCUP = ITEMS.register("clupcup", () -> new Item(new Item.Properties()));
+    public static final RegistryObject<Item> IRONBOTTLE = ITEMS.register("ironbottle", () -> new IronBottleItem(new Item.Properties()));
 
     public static void register(IEventBus eventBus){
         ITEMS.register(eventBus);

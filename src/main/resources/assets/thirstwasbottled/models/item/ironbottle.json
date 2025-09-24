@@ -1,0 +1,12 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "thirstwasbottled:item/ironbottle"
+  },
+  "overrides": [
+    {
+      "predicate": {"thirstwasbottled:filled": 1},
+      "model": "thirstwasbottled:item/ironbottle_filled"
+    }
+  ]
+}

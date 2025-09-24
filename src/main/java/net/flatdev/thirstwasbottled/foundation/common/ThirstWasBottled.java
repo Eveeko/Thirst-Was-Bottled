@@ -2,6 +2,7 @@ package net.flatdev.thirstwasbottled.foundation.common;
 
 import com.mojang.logging.LogUtils;
 import dev.ghen.thirst.api.ThirstHelper;
+import net.flatdev.thirstwasbottled.item.IronBottleItem;
 import net.flatdev.thirstwasbottled.item.ModCreativeModeTabs;
 import net.flatdev.thirstwasbottled.item.Moditems;
 import net.flatdev.thirstwasbottled.item.PaperCupItem;
@@ -46,6 +47,8 @@ public class ThirstWasBottled
     private void commonSetup(final FMLCommonSetupEvent event)
     {
         ThirstHelper.VALID_DRINKS.put(Moditems.PAPERCUP.get(), new Number[]{((PaperCupItem)Moditems.PAPERCUP.get()).getHydration(), ((PaperCupItem)Moditems.PAPERCUP.get()).getQuench()});
+        ThirstHelper.VALID_DRINKS.put(Moditems.IRONBOTTLE.get(), new Number[]{((IronBottleItem)Moditems.IRONBOTTLE.get()).getHydration(), ((IronBottleItem)Moditems.IRONBOTTLE.get()).getQuench()});
+
     }
 
     // Add the example block item to the building blocks tab
@@ -72,6 +75,11 @@ public class ThirstWasBottled
                     new ResourceLocation(ThirstWasBottled.MOD_ID, "filled"),
                     (stack, level, entity, seed) -> stack.hasTag() && stack.getTag().getBoolean("Filled") ? 1.0F : 0.0F
             );
+            ItemProperties.register(
+                    Moditems.IRONBOTTLE.get(),
+                    new ResourceLocation(ThirstWasBottled.MOD_ID, "filled"),
+                    (stack, level, entity, seed) -> stack.hasTag() && stack.getTag().getBoolean("Filled") ? 1.0F : 0.0F
+            );
         }
         @SubscribeEvent
         public static void onRegisterColorHandlers(RegisterColorHandlersEvent.Item event) {
@@ -94,6 +102,26 @@ public class ThirstWasBottled
                         return 0xFFFFFF; // no tint (normal colors) for other layers
                     },
                     Moditems.PAPERCUP.get()
+            );
+            event.register(
+                    (stack, tintIndex) -> {
+                        // tintIndex references the layer number in the item.json file. this whole event gets called once per layer as its getting drawn.
+                        if (tintIndex == 1) {
+                            CompoundTag tag = stack.getTag();
+                            if(tag != null && tag.contains("Purity")){
+                                int purity = tag.getInt("Purity");
+                                return switch (purity) {
+                                    case 1 -> 0x5c809b;
+                                    case 2 -> 0x335ed7;
+                                    case 3 -> 0x21affc;
+                                    default -> 0x917a3b;
+                                };
+                            }
+                            return 0xFFFFFF; // no tint for if the cup is empty as purity will always be present in a filled cup.
+                        }
+                        return 0xFFFFFF; // no tint (normal colors) for other layers
+                    },
+                    Moditems.IRONBOTTLE.get()
             );
         }
     }

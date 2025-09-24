@@ -1,5 +1,6 @@
 package net.flatdev.thirstwasbottled.foundation.common.item;
 
+import dev.ghen.thirst.content.purity.FillableWithPurity;
 import dev.ghen.thirst.content.purity.WaterPurity;
 import dev.ghen.thirst.content.thirst.PlayerThirst;
 import dev.ghen.thirst.foundation.gui.ThirstBarRenderer;
@@ -19,37 +20,41 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class DrinkItem extends Item {
     public DrinkItem(Properties properties) {
         super((new Item.Properties()));
     }
     public int dripTracker = 0;
-    public double hydration = 1;
-    public double quench = 1;
+    public int hydration = 1;
+    public int quench = 1;
 
-    public double getHydration(){
+    public int getHydration(){
         return hydration;
     }
-    public double getQuench() {
+    public int getQuench() {
         return quench;
     }
-    public void setHydration(double amount){
+    public void setHydration(int amount){
         hydration = amount;
     }
-    public void setQuench(double amount){
+    public void setQuench(int amount){
         quench = amount;
     }
 
@@ -61,11 +66,24 @@ public class DrinkItem extends Item {
         if (hit.getType() == HitResult.Type.BLOCK && stack.getTag() == null) {
             BlockPos pos = hit.getBlockPos();
             BlockState state = level.getBlockState(pos);
+            BlockEntity blockEntity = level.getBlockEntity(pos);
             FluidStack fluidStack = FluidStack.EMPTY;
-
-            if (state.getBlock() == Blocks.WATER && state.getFluidState().isSource()) {
+            FluidState fluidState = state.getFluidState();
+            AtomicReference<Boolean> isWater = new AtomicReference<>(false);
+            if(blockEntity != null) {
+                blockEntity.getCapability(ForgeCapabilities.FLUID_HANDLER).ifPresent(fluidHandler -> {
+                    FluidStack fluidInBlock = fluidHandler.getFluidInTank(0);
+                    if (!fluidInBlock.isEmpty() && fluidInBlock.getFluid().isSame(Fluids.WATER)) {
+                        isWater.set(true);
+                    }
+                });
+            }else{
+                if(fluidState.is(Fluids.WATER)){
+                    isWater.set(true);
+                }
+            }
+            if (isWater.get()) {
                 if (!level.isClientSide){
-                    FluidState fluidState = state.getFluidState();
                     FluidType type = fluidState.getFluidType(); // FluidType, not Fluid
                     Fluid fluid = ForgeRegistries.FLUIDS.getValue(ForgeRegistries.FLUID_TYPES.get().getKey(type));
                     fluidStack = new FluidStack(fluid, 100); // 100 mB
