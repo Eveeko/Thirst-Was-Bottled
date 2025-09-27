@@ -36,6 +36,7 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.ItemFluidContainer;
 import net.minecraftforge.fluids.capability.templates.FluidHandlerItemStack;
 import net.minecraftforge.registries.ForgeRegistries;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 import java.util.concurrent.atomic.AtomicReference;
@@ -87,7 +88,7 @@ public class IronBottleItem extends DrinkItem {
                     if(purity == -1){ purity = 0; };
                     // Create a new filled cup
                     WaterPurity.addPurity(stack, purity);
-                    stack.getOrCreateTag().putBoolean("Filled", true);
+                    stack.getOrCreateTag().putFloat("Filled", 3);
                     stack.getOrCreateTag().putString("Fluid",
                             ForgeRegistries.FLUIDS.getKey(fluidStack.getFluid()).toString());
 
@@ -122,31 +123,24 @@ public class IronBottleItem extends DrinkItem {
         return InteractionResultHolder.pass(stack);
     }
     @Override
-    public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity entity) {
+    public @NotNull ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity entity) {
         if (entity instanceof Player player) {
             // Play drinking sound
             if (!player.isCreative() && !player.isSpectator()) {
                 System.out.println("Player thirst " + ThirstBarRenderer.PLAYER_THIRST.getThirst());
                 int thirst = ThirstBarRenderer.PLAYER_THIRST.getThirst();
+                float filled = stack.getTag().getFloat("Filled");
                 if (thirst < 20) {
-                    if (stack.getTag().getBoolean("Filled")) {
+                    if (filled != 0) {
                         int purity = WaterPurity.getPurity(stack);
                         player.playSound(SoundEvents.GENERIC_DRINK, 1.0F, 1.0F);
-                        player.getCapability(ModCapabilities.PLAYER_THIRST, (Direction)null).ifPresent((cap) -> {
-                            if (WaterPurity.givePurityEffects(player, stack)) {
-                                cap.drink(player, this.getHydration(), this.getQuench());
-                            }
-
-                        });
                         WaterPurity.givePurityEffects(player, purity);
+                        stack.getTag().putFloat("Filled", (filled - 1));
                         stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).ifPresent(handler -> {
-                            System.out.println("is valid fluid item.");
+                            //System.out.println("is valid fluid item.");
                             FluidStack containedFluid = handler.getFluidInTank(0);
                             if (!containedFluid.isEmpty()) {
                                 FluidStack drained = handler.drain(SIP_SIZE, IFluidHandler.FluidAction.EXECUTE);
-                                if (!drained.isEmpty()) {
-                                    player.displayClientMessage(Component.literal("You drank " + drained.getAmount() + "mb water!"), true);
-                                }
                                 // If tank is empty, wipe custom NBT
                                 if (handler.getFluidInTank(0).isEmpty()) {
                                     CompoundTag tag = stack.getTag();

@@ -5,8 +5,16 @@
   },
   "overrides": [
     {
-      "predicate": {"thirstwasbottled:filled": 1},
+      "predicate": { "thirstwasbottled:filled": 3.0 },
       "model": "thirstwasbottled:item/ironbottle_filled"
+    },
+    {
+      "predicate": { "thirstwasbottled:filled": 2.0 },
+      "model": "thirstwasbottled:item/ironbottle_filled_half"
+    },
+    {
+      "predicate": { "thirstwasbottled:filled": 1.0 },
+      "model": "thirstwasbottled:item/ironbottle_filled_quarter"
     }
   ]
 }

@@ -78,7 +78,12 @@ public class ThirstWasBottled
             ItemProperties.register(
                     Moditems.IRONBOTTLE.get(),
                     new ResourceLocation(ThirstWasBottled.MOD_ID, "filled"),
-                    (stack, level, entity, seed) -> stack.hasTag() && stack.getTag().getBoolean("Filled") ? 1.0F : 0.0F
+                    (stack, level, entity, seed) -> {
+                        if (stack.hasTag() && stack.getTag().contains("Filled")) {
+                            return (float) stack.getTag().getInt("Filled"); // 0.0F - 3.0F
+                        }
+                        return 0.0F;
+                    }
             );
         }
         @SubscribeEvent
