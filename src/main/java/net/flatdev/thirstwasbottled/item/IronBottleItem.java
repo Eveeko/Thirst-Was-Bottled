@@ -88,7 +88,7 @@ public class IronBottleItem extends DrinkItem {
                     if(purity == -1){ purity = 0; };
                     // Create a new filled cup
                     WaterPurity.addPurity(stack, purity);
-                    stack.getOrCreateTag().putFloat("Filled", 3);
+                    stack.getOrCreateTag().putInt("Filled", 3);
                     stack.getOrCreateTag().putString("Fluid",
                             ForgeRegistries.FLUIDS.getKey(fluidStack.getFluid()).toString());
 
@@ -129,13 +129,13 @@ public class IronBottleItem extends DrinkItem {
             if (!player.isCreative() && !player.isSpectator()) {
                 System.out.println("Player thirst " + ThirstBarRenderer.PLAYER_THIRST.getThirst());
                 int thirst = ThirstBarRenderer.PLAYER_THIRST.getThirst();
-                float filled = stack.getTag().getFloat("Filled");
+                int filled = stack.getTag().getInt("Filled");
                 if (thirst < 20) {
                     if (filled != 0) {
                         int purity = WaterPurity.getPurity(stack);
                         player.playSound(SoundEvents.GENERIC_DRINK, 1.0F, 1.0F);
                         WaterPurity.givePurityEffects(player, purity);
-                        stack.getTag().putFloat("Filled", (filled - 1));
+                        stack.getTag().putInt("Filled", (filled - 1));
                         stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).ifPresent(handler -> {
                             //System.out.println("is valid fluid item.");
                             FluidStack containedFluid = handler.getFluidInTank(0);
