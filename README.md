@@ -27,6 +27,10 @@ ___
   <img width="157" height="106" alt="image" src="https://github.com/user-attachments/assets/a1d18c67-8790-4dde-91d1-cadb61cc5449" />
   <br> *shapeless crafting*
 
+- ### <img width="16" height="16" alt="ironbottle" src="https://github.com/user-attachments/assets/545d732b-ba0a-47de-b559-6ba84ff9beb0" /> Iron Bottle
+  <img width="50" height="38" alt="493119440-4e3f8c96-e721-425a-b39f-70b88eaad6ba43" src="https://github.com/user-attachments/assets/2a702573-8d67-4a40-a454-674c27d2565d" />
+  <br> Holds 3 sips of water, multi-use. Can be refilled at any water source or tank. <br> Purity of water <b>CANNOT</b> be changed once cup is filled. <br>
+  <img width="252" height="136" alt="Screenshot 2025-11-25 173023" src="https://github.com/user-attachments/assets/87979686-287a-47fe-8a6c-64293d0ed3f2" />
 
 
 ## Attributions
