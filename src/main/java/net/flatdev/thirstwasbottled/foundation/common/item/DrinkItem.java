@@ -31,6 +31,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidType;
+import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
@@ -41,20 +42,24 @@ public class DrinkItem extends Item {
     public DrinkItem(Properties properties) {
         super((new Item.Properties()));
     }
+
     public int dripTracker = 0;
     public int hydration = 1;
     public int quench = 1;
 
-    public int getHydration(){
+    public int getHydration() {
         return hydration;
     }
+
     public int getQuench() {
         return quench;
     }
-    public void setHydration(int amount){
+
+    public void setHydration(int amount) {
         hydration = amount;
     }
-    public void setQuench(int amount){
+
+    public void setQuench(int amount) {
         quench = amount;
     }
 
@@ -70,88 +75,109 @@ public class DrinkItem extends Item {
             FluidStack fluidStack = FluidStack.EMPTY;
             FluidState fluidState = state.getFluidState();
             AtomicReference<Boolean> isWater = new AtomicReference<>(false);
-            if(blockEntity != null) {
+            if (blockEntity != null) {
                 blockEntity.getCapability(ForgeCapabilities.FLUID_HANDLER).ifPresent(fluidHandler -> {
                     FluidStack fluidInBlock = fluidHandler.getFluidInTank(0);
                     if (!fluidInBlock.isEmpty() && fluidInBlock.getFluid().isSame(Fluids.WATER)) {
                         isWater.set(true);
                     }
                 });
-            }else{
-                if(fluidState.is(Fluids.WATER)){
+            } else {
+                if (fluidState.is(Fluids.WATER)) {
                     isWater.set(true);
                 }
             }
             if (isWater.get()) {
-                if (!level.isClientSide){
+                if (!level.isClientSide) {
                     FluidType type = fluidState.getFluidType(); // FluidType, not Fluid
                     Fluid fluid = ForgeRegistries.FLUIDS.getValue(ForgeRegistries.FLUID_TYPES.get().getKey(type));
                     fluidStack = new FluidStack(fluid, 100); // 100 mB
                     // Pick purity based on source
                     int purity = 0; // default clean
                     purity = WaterPurity.getBlockPurity(level, pos);
-                    if(purity == -1){ purity = 0; };
+                    if (purity == -1) {
+                        purity = 0;
+                    }
+                    ;
                     // Create a new filled cup
                     ItemStack filledCup = stack.copy();
                     filledCup.setCount(1);
                     WaterPurity.addPurity(filledCup, purity);
                     filledCup.getOrCreateTag().putBoolean("Filled", true);
-                    filledCup.getOrCreateTag().putString("Fluid",
-                            ForgeRegistries.FLUIDS.getKey(fluidStack.getFluid()).toString());
-                    filledCup.getOrCreateTag().putInt("Amount", 100);
-
-                    // Grab fluid purity like the bottle does
-
-                    //filledCup.getOrCreateTag().putInt("Purity", purity);
-
-                    // Reduce the original stack size
-                    stack.shrink(1);
-
-                    // Try to put the filled cup into player’s inventory
-                    if (!player.getInventory().add(filledCup)) {
-                        // If inventory full, drop it in the world
-                        player.drop(filledCup, false);
-                    }
-                    // Play sound
+                    filledCup.getOrCreateTag().putString("Fluid", ForgeRegistries.FLUIDS.getKey(fluidStack.getFluid()).toString());
+                    stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).ifPresent(handler -> {
+                        int filled = handler.fill(new FluidStack(Fluids.WATER, 250), IFluidHandler.FluidAction.EXECUTE);
+                        if (filled > 0) {
+                            player.displayClientMessage(Component.literal("Filled with " + filled + "mb water"), true);
+                        }
+                    });
                     level.playSound(null, pos, SoundEvents.BOTTLE_FILL, SoundSource.PLAYERS, 1.0F, 1.0F);
+
+                    if (stack.getCount() == 1) {
+                        int wSlot = player.getInventory().findSlotMatchingItem(filledCup);
+                        int slot = player.getInventory().findSlotMatchingItem(stack);
+                        if (slot != -1 && wSlot == -1) {
+                            player.setItemInHand(hand, filledCup);
+                        } else {
+                            // Try to put the filled cup into player’s inventory
+                            if (!player.getInventory().add(filledCup)) {
+                                // If inventory full, drop it in the world
+                                player.drop(filledCup, false);
+                            }
+                            // Reduce the original stack size
+                            stack.shrink(1);
+                        }
+                    } else {
+                        // Try to put the filled cup into player’s inventory
+                        if (!player.getInventory().add(filledCup)) {
+                            // If inventory full, drop it in the world
+                            player.drop(filledCup, false);
+                        }
+                        // Reduce the original stack size
+                        stack.shrink(1);
+                    }
                 }
 
                 return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
             }
-        }else {
+        } else {
             if (!player.isCreative() && !player.isSpectator()) {
                 int thirst = ThirstBarRenderer.PLAYER_THIRST.getThirst();
                 if (!player.isCreative() && !player.isSpectator()) {
-                    if(thirst < 20){
+                    if (thirst < 20) {
                         return ItemUtils.startUsingInstantly(level, player, hand); // makes it hold and play animation
                     } else {
                         return InteractionResultHolder.pass(stack);
                     }
-                } else{
+                } else {
                     return InteractionResultHolder.pass(stack);
                 }
-            };
+            }
+            ;
         }
         return InteractionResultHolder.pass(stack);
     }
+
     @Override
     public UseAnim getUseAnimation(ItemStack stack) {
-        if(stack.getTag() != null) {
+        if (stack.getTag() != null) {
             if (stack.getTag().getBoolean("Filled")) {
                 return UseAnim.DRINK; // Makes the player use the drinking animation
             }
         }
         return UseAnim.NONE;
     }
+
     @Override
     public int getUseDuration(ItemStack stack) {
         return 32; // Default duration (like drinking a potion)
     }
+
     @Override
     public void onUseTick(Level level, LivingEntity living, ItemStack stack, int count) {
         if (level.isClientSide) {
             dripTracker++;
-            if(dripTracker % 9 == 0) {
+            if (dripTracker % 9 == 0) {
                 Vec3 vec3 = living.getLookAngle(); // returns a normalized vector, which is what you want in this case
                 double x = living.getX() + vec3.x * 0.15;
                 double y = (living.getY() + 1.45) + vec3.y * 0.25;
@@ -161,6 +187,7 @@ public class DrinkItem extends Item {
             }
         }
     }
+
     @Override
     public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity entity) {
         if (entity instanceof Player player) {
@@ -189,6 +216,7 @@ public class DrinkItem extends Item {
         // Return the empty cup
         return new ItemStack(Moditems.PAPERCUP.get());
     }
+
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
         if (stack.hasTag() && stack.getTag().contains("Purity")) {

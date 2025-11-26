@@ -81,8 +81,9 @@ public class ThirstWasBottled
                     (stack, level, entity, seed) -> {
                         if (stack.hasTag() && stack.getTag().contains("Filled")) {
                             return (float) stack.getTag().getInt("Filled"); // 0.0F - 3.0F
+                        }else {
+                            return 0.0F;
                         }
-                        return 0.0F;
                     }
             );
         }
